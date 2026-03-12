@@ -2,10 +2,14 @@
 import { theme } from "@/theme";
 import {StyleSheet, Text, View, TouchableOpacity, Alert} from "react-native";
 import { ShoppingListItem } from "@/components/ShoppingListItem";
+import { Link } from "expo-router";
 export default function App() {
 
   return (
     <View style={styles.container}> 
+      <Link href="/idea" style={{marginBottom:16, alignItems:"center", justifyContent:"center", padding:12, borderRadius:6}}>
+        <Text style={{color:theme.colorBlack, fontSize:18}}>Go to Idea Screen</Text>
+      </Link>
       <ShoppingListItem name="Coffee" />
       <ShoppingListItem name="Tea" isCompleted/>
       <ShoppingListItem name="Sugar" isCompleted/>
