@@ -1,53 +1,93 @@
 
 import { theme } from "@/theme";
-import {StyleSheet, Text, View, TouchableOpacity, Alert} from "react-native";
+import {StyleSheet, Text, View, TouchableOpacity, Alert, TextInput, ScrollView, FlatList} from "react-native";
 import { ShoppingListItem } from "@/components/ShoppingListItem";
 import { Link } from "expo-router";
+import { useState } from "react";
+
+type ShoppingListItemType = {
+  id: string;
+  name: string;
+  completedAtTimestamp?: number;
+}
+
 export default function App() {
+  const [shoppingList, setShoppingList] = useState<ShoppingListItemType[]>([]);
+  const [value,setValue] = useState("");
+  const handleSubmit = () => {
+    if(value){
+      const newShoppingList =[
+        {
+          id: new Date().toTimeString(),name:value
+        },
+        ...shoppingList,
+      ]
+      setShoppingList(newShoppingList);
+      setValue("");
+    }
+  }
+
+
+  const handleDelete = (id: string) => {
+    const newShoppingList = shoppingList.filter((item) => item.id !== id);
+    setShoppingList(newShoppingList);
+  }
+
+  const handleToggleComplete= (id:string) => {
+    
+  }
 
   return (
-    <View style={styles.container}> 
-      <Link href="/idea" style={{marginBottom:16, alignItems:"center", justifyContent:"center", padding:12, borderRadius:6}}>
-        <Text style={{color:theme.colorBlack, fontSize:18}}>Go to Idea Screen</Text>
-      </Link>
-      <ShoppingListItem name="Coffee" />
-      <ShoppingListItem name="Tea" isCompleted/>
-      <ShoppingListItem name="Sugar" isCompleted/>
-    </View>
+    <FlatList 
+    data={shoppingList}
+    keyExtractor={(item) => item.id}
+    style={styles.container}
+    contentContainerStyle={styles.contentContainer}
+    stickyHeaderIndices={[0]}
+    ListEmptyComponent={
+       <View style={styles.listEmptyContainer}>
+          <Text>Your shopping list is empty</Text>
+        </View>
+      }
+    ListHeaderComponent={
+      <TextInput 
+      placeholder="E.g. Coffee" 
+      style={styles.textInput} 
+      value={value} 
+      onChangeText={setValue}
+      returnKeyType="done"
+      onSubmitEditing={handleSubmit}/>
+    }
+    renderItem={({item}) => {
+      return <ShoppingListItem name={item.name} onDelete={() => handleDelete(item.id)}
+      onToggleComplete={() => handleToggleComplete(item.id)}/>
+    }}
+    />
   );
-}
+} 
 const styles = StyleSheet.create({
   container: {
     flex: 1,    
     backgroundColor: "#fff",
-    justifyContent: "center",
+    padding: 12,
+  },
+  contentContainer: {
+    paddingBottom: 24,
   },
 
-  itemContainer: {
-    borderBottomWidth: 1, 
-    borderBottomColor:"#1a759f", 
-    paddingHorizontal:8, 
-    paddingVertical:16,
-    flexDirection:"row",
+  textInput: {
+    borderColor:theme.colorLightGrey,
+    borderWidth:2,
+    padding:12,
+    marginHorizontal:12,
+    marginBottom:12,
+    fontSize:18,
+    borderRadius:50,
+    backgroundColor: theme.colorWhite,
+  },
+  listEmptyContainer:{
+    justifyContent:"center", 
     alignItems:"center",
-    justifyContent:"space-between",
-  },
-
-  itemText: {
-    fontSize:18, 
-    fontWeight:200
-  },
-
-  button: {
-    backgroundColor: theme.colorBlack,
-    padding: 8,
-    borderRadius: 6,
-  },
-
-  buttonText: {
-    color: theme.colorWhite,
-    fontWeight: "bold",
-    textTransform: "uppercase",
-    letterSpacing: 1,
+    marginVertical:18,
   },
 });
