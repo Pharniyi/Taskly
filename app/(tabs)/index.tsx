@@ -9,6 +9,7 @@ type ShoppingListItemType = {
   id: string;
   name: string;
   completedAtTimestamp?: number;
+  lastUpdatedTimestamp: number;
 }
 
 export default function App() {
@@ -18,7 +19,7 @@ export default function App() {
     if(value){
       const newShoppingList =[
         {
-          id: new Date().toTimeString(),name:value
+          id: new Date().toTimeString(),name:value, lastUpdatedTimestamp: Date.now()
         },
         ...shoppingList,
       ]
@@ -34,12 +35,22 @@ export default function App() {
   }
 
   const handleToggleComplete= (id:string) => {
-    
+    const newShoppingList = shoppingList.map((item) => {
+      if(item.id === id){
+        return{
+          ...item,
+          lastUpdatedTimestamp: Date.now(),
+          completedAtTimestamp: item.completedAtTimestamp ? undefined : Date.now(),
+        }
+        }
+        return item;
+      });
+      setShoppingList(newShoppingList);
   }
 
   return (
     <FlatList 
-    data={shoppingList}
+    data={orderShoppingList(shoppingList)}
     keyExtractor={(item) => item.id}
     style={styles.container}
     contentContainerStyle={styles.contentContainer}
@@ -60,16 +71,41 @@ export default function App() {
     }
     renderItem={({item}) => {
       return <ShoppingListItem name={item.name} onDelete={() => handleDelete(item.id)}
-      onToggleComplete={() => handleToggleComplete(item.id)}/>
+      onToggleComplete={() => handleToggleComplete(item.id)}
+      isCompleted={Boolean(item.completedAtTimestamp)}
+      />
     }}
     />
   );
 } 
+
+function orderShoppingList(shoppingList: ShoppingListItemType[]) {
+  return shoppingList.sort((item1, item2) => {
+    if (item1.completedAtTimestamp && item2.completedAtTimestamp) {
+      return item2.completedAtTimestamp - item1.completedAtTimestamp;
+    }
+
+    if (item1.completedAtTimestamp && !item2.completedAtTimestamp) {
+      return 1;
+    }
+
+    if (!item1.completedAtTimestamp && item2.completedAtTimestamp) {
+      return -1;
+    }
+
+    if (!item1.completedAtTimestamp && !item2.completedAtTimestamp) {
+      return item2.lastUpdatedTimestamp - item1.lastUpdatedTimestamp;
+    }
+
+    return 0;
+  });
+}
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,    
     backgroundColor: "#fff",
-    padding: 12,
+    paddingVertical:12,
   },
   contentContainer: {
     paddingBottom: 24,

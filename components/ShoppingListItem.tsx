@@ -1,6 +1,7 @@
-import { StyleSheet, TouchableOpacity, Text, Alert, Pressable } from "react-native"
+import { StyleSheet, TouchableOpacity, Text, Alert, Pressable, View } from "react-native"
 import {theme} from "@/theme";
 import AntDesign from '@expo/vector-icons/AntDesign';
+import Entypo from '@expo/vector-icons/Entypo';
 
 type Props = {
     name: string;
@@ -31,9 +32,12 @@ export function ShoppingListItem({name, isCompleted, onDelete, onToggleComplete}
     return (
         <Pressable style={[styles.itemContainer, isCompleted ? styles.completedContainer : undefined]}
          onPress={onToggleComplete}>
-            <Text style={[styles.itemText, isCompleted ? styles.completedText : undefined]}>
-                {name}
-            </Text>
+          <View style= {styles.row}>
+            <Entypo name={ isCompleted ? "check" : "circle" } size={24} color={ isCompleted ? theme.colorGrey : theme.colorCerulean} />
+              <Text style={[styles.itemText, isCompleted ? styles.completedText : undefined]}>
+                  {name}
+              </Text>
+          </View>
             <TouchableOpacity onPress={handleDelete} activeOpacity={0.8}>
                 <AntDesign name="close-circle" size={24} color= { isCompleted ? theme.colorGrey : theme.colorRed } />
             </TouchableOpacity>
@@ -46,6 +50,12 @@ const styles = StyleSheet.create({
     flex: 1,    
     backgroundColor: "#fff",
     justifyContent: "center",
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    flex:1,
   },
 
   itemContainer: {
@@ -75,7 +85,8 @@ const styles = StyleSheet.create({
 
   itemText: {
     fontSize:18, 
-    fontWeight:200
+    fontWeight:200,
+    flex:1,
   },
 
   button: {
