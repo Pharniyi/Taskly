@@ -3,7 +3,10 @@ import { theme } from "@/theme";
 import {StyleSheet, Text, View, TouchableOpacity, Alert, TextInput, ScrollView, FlatList} from "react-native";
 import { ShoppingListItem } from "@/components/ShoppingListItem";
 import { Link } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getFromStorage, saveToStorage } from "./utils/storage";
+
+const storageKey = "shopping-list";
 
 type ShoppingListItemType = {
   id: string;
@@ -15,6 +18,17 @@ type ShoppingListItemType = {
 export default function App() {
   const [shoppingList, setShoppingList] = useState<ShoppingListItemType[]>([]);
   const [value,setValue] = useState("");
+
+useEffect(() => {
+  const fetchInitial  = async () => {
+    const data = await getFromStorage(storageKey);
+    if(data){
+      setShoppingList(data);
+    }
+  }
+  fetchInitial();
+},[])
+
   const handleSubmit = () => {
     if(value){
       const newShoppingList =[
@@ -24,6 +38,7 @@ export default function App() {
         ...shoppingList,
       ]
       setShoppingList(newShoppingList);
+      saveToStorage(storageKey, newShoppingList);
       setValue("");
     }
   }
@@ -32,6 +47,7 @@ export default function App() {
   const handleDelete = (id: string) => {
     const newShoppingList = shoppingList.filter((item) => item.id !== id);
     setShoppingList(newShoppingList);
+    saveToStorage(storageKey, newShoppingList);
   }
 
   const handleToggleComplete= (id:string) => {
